@@ -22,7 +22,7 @@ def rate_estimation(obs_freq, n, **beta_kwargs):
             **beta_kwargs
         )
         freq = pm.Binomial(
-            'frquency',
+            'frequency',
             n=n,
             p=p,
             observed=obs_freq
@@ -73,7 +73,7 @@ def rate_two_groups(obs_freq_1, obs_freq_2, n_1, n_2, shared=False,
             )
 
         freq_1 = pm.Binomial(
-            'frquency_1',
+            'frequency_1',
             n=n_1,
             p=p_1,
             observed=obs_freq_1
@@ -81,7 +81,7 @@ def rate_two_groups(obs_freq_1, obs_freq_2, n_1, n_2, shared=False,
         )
 
         freq_2 = pm.Binomial(
-            'frquency_2',
+            'frequency_2',
             n=n_2,
             p=p_2,
             observed=obs_freq_2
@@ -91,7 +91,7 @@ def rate_two_groups(obs_freq_1, obs_freq_2, n_1, n_2, shared=False,
     return model
 
 
-def joint_rate_trails(obs_freq, max_trials, **beta_kwargs):
+def joint_rate_trials(obs_freq, max_trials, **beta_kwargs):
     """PyMC3 implementation of joint estimation of rate and trials.
 
     Args:
@@ -106,7 +106,9 @@ def joint_rate_trails(obs_freq, max_trials, **beta_kwargs):
         - model: PyMC3 model for jointly estimating p and trials
             generating obs_freq.
     """
-    p_cat = np.array([i/max_trials for i in range(1, max_trials+1)])
+    p_cat = np.array(
+        [i/max_trials for i in range(obs_freq.min(), max_trials+1)]
+    )
     with pm.Model() as model:
 
         p = pm.Beta(
@@ -118,7 +120,7 @@ def joint_rate_trails(obs_freq, max_trials, **beta_kwargs):
             p=p_cat
         )
         freq = pm.Binomial(
-            'frquency',
+            'frequency',
             n=n,
             p=p,
             observed=obs_freq
