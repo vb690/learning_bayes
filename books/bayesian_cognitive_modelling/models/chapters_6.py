@@ -269,51 +269,33 @@ def estimate_conditional_difficulty_ability(observed_answers, question_idx,
     return model
 
 
-def estimate_malingering_hier(observed_answers, n_questions, kwargs_dict={
-                                'mu_b': {
-                                    'alpha': 1,
-                                    'beta': 1
-                                },
-                                'mu_d': {
-                                    'sd': 1
-                                },
-                                'lam_b': {
-                                    'lower': 40,
-                                    'upper': 800
-                                },
-                                'lam_m': {
-                                    'lower': 4,
-                                    'upper': 100
-                                },
-                                'phi': {
-                                    'alpha': 5,
-                                    'beta': 5
-                                }
-                              }
-                              ):
+def estimate_malingering_hier(observed_answers, n_questions,
+                              beta_mu_b_kwargs, half_norm_mu_delta_kwargs,
+                              uniform_lamba_kwargs, uniform_lambda_malinger,
+                              beta_phi_kwargs):
     """
     """
     with pm.Model() as model:
 
         mu_b = pm.Beta(
             'mu_benevolent',
-            **kwargs_dict['mu_b']
+            **beta_mu_b_kwargs
         )
         mu_delta = pm.HalfNormal(
             'mu_delta',
-            **kwargs_dict['mu_d']
+            **half_norm_mu_delta_kwargs
         )
         lam_b = pm.Uniform(
             'lambda_benevolent',
-            **kwargs_dict['lam_b']
+            **uniform_lamba_kwargs
         )
         lam_m = pm.Uniform(
             'lambda_malinger',
-            **kwargs_dict['lam_m']
+            **uniform_lambda_malinger
         )
         phi = pm.Beta(
             'phi',
-            **kwargs_dict['phi']
+            **beta_phi_kwargs
         )
         membership = pm.Bernoulli(
             'latent_group_membership',
