@@ -37,7 +37,7 @@ def validate_model(model, prpc_kwargs, sampling_kwargs, popc_kwargs):
     return plate, prpc, trace, popc
 
 
-def visualize_samples(observed, prpc, popc):
+def visualize_samples(observed, prpc, popc, s=80):
     """Utility function for visualizing predictions from the prior, posterior
     and actual data.
 
@@ -55,7 +55,7 @@ def visualize_samples(observed, prpc, popc):
         [pos for pos in range(len(observed))],
         prpc,
         facecolors='none',
-        s=80,
+        s=s,
         edgecolors='b',
         linestyle='--',
         vmin=observed.min(),
@@ -67,7 +67,7 @@ def visualize_samples(observed, prpc, popc):
         [pos for pos in range(len(observed))],
         observed,
         facecolors='none',
-        s=80,
+        s=s,
         edgecolors='orange'
     )
     axs[1].set_title('Observed Data')
@@ -76,7 +76,7 @@ def visualize_samples(observed, prpc, popc):
         [pos for pos in range(len(observed))],
         popc,
         facecolors='none',
-        s=80,
+        s=s,
         edgecolors='g',
         linestyle='--',
         vmin=observed.min(),
