@@ -3,7 +3,7 @@ import numpy as np
 import pymc3 as pm
 
 
-def gaussian_estimation(obs_measurement, mu_kwargs, sigma_kwargs):
+def gaussian_estimation(obs_measurements, mu_kwargs, sigma_kwargs):
     """PyMC3 implementation of gaussian estimation.
 
     Args:
@@ -30,13 +30,13 @@ def gaussian_estimation(obs_measurement, mu_kwargs, sigma_kwargs):
             'measurements',
             mu=mu,
             sigma=sigma,
-            observed=obs_measurement
+            observed=obs_measurements
         )
 
     return model
 
 
-def seven_scientist_estimation(obs_measurements, mu_kwargs, sigma_kwargs):
+def seven_scientists_estimation(obs_measurements, mu_kwargs, sigma_kwargs):
     """PyMC3 implementation of the seven scientists problem. The general
     idea is the error in measurements can be modelled as varying
     the standard deviation of a normal distribution at the scientist-level.
@@ -112,8 +112,8 @@ def repeated_iq_estimation(obs_measurements, id_ind, mu_kwargs,
 
         measurements = pm.Normal(
             'measurements',
-            mu=mu,
-            sigma=sigma[id_ind],
+            mu=mu[id_ind],
+            sigma=sigma,
             observed=obs_measurements
         )
 
