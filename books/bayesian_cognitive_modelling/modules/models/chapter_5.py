@@ -1,5 +1,4 @@
 import numpy as np
-import numpy.ma as ma
 
 import pymc3 as pm
 
@@ -27,7 +26,7 @@ def estimate_pearson_correlation(obs_measurements, lkj_chol_kwargs, mu_kwargs,
     """
     with pm.Model() as model:
 
-        n = obs_measurements.shape[0]
+        n = obs_measurements.shape[1]
 
         chol, corr, stds = pm.LKJCholeskyCov(
             'Cholesky decomposition',
@@ -57,7 +56,8 @@ def estimate_pearson_correlation(obs_measurements, lkj_chol_kwargs, mu_kwargs,
             latent_measurements = pm.MvNormal(
                 'latent_measurements',
                 mu=mu,
-                chol=chol
+                chol=chol,
+                shape=(n,)
             )
             sigma = pm.HalfCauchy(
                 'measurements_error',
@@ -68,7 +68,7 @@ def estimate_pearson_correlation(obs_measurements, lkj_chol_kwargs, mu_kwargs,
                 'measurements',
                 mu=latent_measurements,
                 sigma=sigma,
-                shape=(n,)
+                observed=obs_measurements
             )
 
     return model
@@ -83,7 +83,7 @@ def estimate_k_coef_agreement(obs_frequencies, **beta_kwargs):
     but we will use separate betas for clarity.
 
     Args:
-        - obs_frequencies: 4D array, frequencies of possible agreement
+        - obs_frequencies: 1D array, frequencies of possible agreement
             outcomes: 00, 01, 11, 10.
         - **beta_kwargs: keyword argument, parameters of the prior beta
             distribution.
@@ -128,23 +128,23 @@ def estimate_k_coef_agreement(obs_frequencies, **beta_kwargs):
         )
 
         # agreement 11
-        p_a = pm.Deterministic(
+        p_11 = pm.Deterministic(
             '11',
             alpha*beta
         )
         # agreement 00
-        p_b = pm.Deterministic(
+        p_00 = pm.Deterministic(
             '00',
             alpha_prime*gamma
         )
         # disagreement 01
-        p_c = pm.Deterministic(
+        p_10 = pm.Deterministic(
             '10',
             alpha*beta_prime
         )
         # disagreement 10
-        p_d = pm.Deterministic(
-            '10',
+        p_01 = pm.Deterministic(
+            '01',
             alpha_prime*gamma_prime
         )
 
@@ -155,7 +155,7 @@ def estimate_k_coef_agreement(obs_frequencies, **beta_kwargs):
         )
         chance_agreement = pm.Deterministic(
             'chance_agreement',
-            (p_a + p_b) + (p_a + p_c) + (p_b + p_d) + (p_c + p_d)
+            ((p_11 + p_10) * (p_11 + p_01)) + ((p_10 + p_00) * (p_01 + p_00))
         )
         k = pm.Deterministic(
             'k',
@@ -166,20 +166,20 @@ def estimate_k_coef_agreement(obs_frequencies, **beta_kwargs):
         obs_frequencies = pm.Multinomial(
             'obs_frequencies',
             n=n,
-            p=[p_a, p_d, p_c, p_d],
+            p=[p_11, p_00, p_10, p_01],
             observed=obs_frequencies
         )
 
     return model
 
 
-def estimate_change_point(observed_time_series, time_steps, mu_kwargs,
-                          sigma_kwargs):
+def estimate_change_point(obs_time_series, t_steps, slope_kwargs,
+                          intercept_kwargs, sigma_kwargs):
     """PyMC3 implementation of a single change point detection.
 
     Args:
-        - observed_time_series: numpy array, values of the time series.
-        - time_steps: numpy array, time indices associated with the time
+        - obs_time_series: numpy array, values of the time series.
+        - t_steps: numpy array, time indices associated with the time
             series.
         - mu_kwargs: dict, keyword argument for a Normal distrbution.
         - sigma_kwargs: dict, keyword arguments for an HalfCauchy distrbution.
@@ -191,34 +191,48 @@ def estimate_change_point(observed_time_series, time_steps, mu_kwargs,
     """
     with pm.Model() as model:
 
+        lag_1_time_series = pm.Data(
+            'lag_1_time_series',
+            obs_time_series[:-1]
+        )
         time_steps = pm.Data(
             'time_steps',
-            time_steps
+            t_steps
         )
 
-        mus = pm.Normal(
-            'mus',
+        slope = pm.Normal(
+            'slope',
+            **slope_kwargs
+        )
+        intercepts = pm.Normal(
+            'intercepts',
             shape=(2,),
-            **mu_kwargs
+            **intercept_kwargs
         )
         sigma = pm.HalfCauchy(
             'sigma',
             **sigma_kwargs
         )
 
-        change_point = pm.Uniform(
+        change_point = pm.DiscreteUniform(
             'change_point',
-            pm.math.minimum(time_steps),
-            pm.math.maximum(time_steps)
+            time_steps.min(),
+            time_steps.max()
+        )
+        intercept = pm.math.switch(
+            t_steps >= change_point, intercepts[1], intercepts[0]
         )
 
-        mu_index = (time_steps > change_point) * 1
+        mu = pm.Deterministic(
+            'mu',
+            intercept + slope * lag_1_time_series
+        )
 
         time_series = pm.Normal(
             'observed_time_series',
-            mu=mus[mu_index],
+            mu=mu,
             sigma=sigma,
-            observed=observed_time_series
+            observed=obs_time_series[1:]
         )
 
     return model
