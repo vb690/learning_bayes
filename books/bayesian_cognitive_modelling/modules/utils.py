@@ -141,7 +141,17 @@ def visualize_biv_samples(observed, prpc, popc, s=80):
 
 def visualize_time_series(observed, prpc, popc, change_points=None,
                           figsize=(15, 5)):
-    """
+    """Utility function for visualizing time series with or without change
+    point.
+
+    Args:
+        - observed: array, observed data.
+        - prpc: array, samples from the prior predictive.
+        - popc: array, samples from the posterior predictive.
+        - change_point: if not None, list of change_points. This indicate the
+            observed and estimated change point in the time series.
+        - figsize: tuple, size of the figure canvas.
+
     """
     fig, axs = plt.subplots(1, 3, figsize=figsize)
 

@@ -291,7 +291,7 @@ def estimate_censored_data(n_censored_attempts, observed_attempt, n,
 
 
 def estimate_recapture(observed_recaptured, first_sample, second_sample,
-                       categorical_kwargs):
+                       discrete_uniform_kwargs):
     """PyMC3 implementation of a capture-recapture model.
 
     Args:
@@ -299,8 +299,8 @@ def estimate_recapture(observed_recaptured, first_sample, second_sample,
             first_sample.
         - first_sample: int, number of sampled elements for the first time.
         - second_sample: int, number of sampled elements for the second time.
-        - categorical_kwargs: dict, keyword arguments for a categorical
-            distribution.
+        - discrete_uniform_kwargs: dict, keyword arguments for a discrete
+            uniform distribution.
 
     Returns:
         - model: a PyMC3 model, it estimates the size of a population from
@@ -309,16 +309,16 @@ def estimate_recapture(observed_recaptured, first_sample, second_sample,
     """
     with pm.Model() as model:
 
-        population_size = pm.Categorical(
+        population_size = pm.DiscreteUniform(
             'population_size',
-            **categorical_kwargs
+            **discrete_uniform_kwargs
         )
 
         recaptured = pm.HyperGeometric(
             'recaptured',
             n=second_sample,
-            x=first_sample,
-            t=population_size,
+            k=first_sample,
+            N=population_size,
             observed=observed_recaptured
         )
 
