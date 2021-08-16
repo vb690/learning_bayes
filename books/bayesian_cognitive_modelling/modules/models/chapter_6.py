@@ -4,7 +4,7 @@ import pymc3 as pm
 import theano.tensor as tt
 
 
-def estimate_latent_ability_membership(observed_scores, number_questions,
+def estimate_latent_ability_membership(obs_scores, number_questions,
                                        beta_1_kwargs, beta_2_kwargs,
                                        bernoulli_kwargs):
     """PyMC3 implementation of latent ability and membership model.
@@ -35,25 +35,29 @@ def estimate_latent_ability_membership(observed_scores, number_questions,
             **beta_2_kwargs
         )
 
-        groups_abilities = [latent_group_1_ability, latent_group_2_ability]
-
         latent_group_membership = pm.Bernoulli(
             'latent_group_membership',
-            shape=(len(observed_scores),),
+            shape=(len(obs_scores),),
             **bernoulli_kwargs
+        )
+
+        latent_group_ability = tt.switch(
+            latent_group_membership < 1,
+            latent_group_1_ability,
+            latent_group_2_ability
         )
 
         observed_scores = pm.Binomial(
             'observed_scores',
             n=number_questions,
-            p=groups_abilities[latent_group_membership],
-            observed=observed_scores
+            p=latent_group_ability,
+            observed=obs_scores
         )
 
     return model
 
 
-def estimate_latent_ability_hier(observed_scores, number_questions,
+def estimate_latent_ability_hier(obs_scores, number_questions,
                                  a_beta_1_kwargs, b_beta_1_kwargs,
                                  a_beta_2_kwargs, b_beta_2_kwargs,
                                  bernoulli_kwargs):
@@ -83,7 +87,7 @@ def estimate_latent_ability_hier(observed_scores, number_questions,
         idx = pm.Data(
             'observation_indices',
             np.array(
-                [i for i in range(len(observed_scores))]
+                [i for i in range(len(obs_scores))]
             )
         )
 
@@ -97,9 +101,9 @@ def estimate_latent_ability_hier(observed_scores, number_questions,
         )
         latent_group_1_ability = pm.Beta(
             'latent_group_1_ability',
-            a=hyper_a_beta_1,
-            b=hyper_b_beta_1,
-            shape=(len(observed_scores),)
+            alpha=hyper_a_beta_1,
+            beta=hyper_b_beta_1,
+            shape=(len(obs_scores),)
         )
 
         hyper_a_beta_2 = pm.Uniform(
@@ -112,24 +116,28 @@ def estimate_latent_ability_hier(observed_scores, number_questions,
         )
         latent_group_2_ability = pm.Beta(
             'latent_group_2_ability',
-            a=hyper_a_beta_2,
-            b=hyper_b_beta_2,
-            shape=(len(observed_scores),)
+            alpha=hyper_a_beta_2,
+            beta=hyper_b_beta_2,
+            shape=(len(obs_scores),)
         )
-
-        groups_abilities = [latent_group_1_ability, latent_group_2_ability]
 
         latent_group_membership = pm.Bernoulli(
             'latent_group_membership',
-            shape=(len(observed_scores),),
+            shape=(len(obs_scores),),
             **bernoulli_kwargs
+        )
+
+        latent_group_ability = tt.switch(
+            latent_group_membership < 1,
+            latent_group_1_ability,
+            latent_group_2_ability
         )
 
         observed_scores = pm.Binomial(
             'observed_scores',
             n=number_questions,
-            p=groups_abilities[latent_group_membership][idx],
-            observed=observed_scores
+            p=latent_group_ability[idx],
+            observed=obs_scores
         )
 
     return model
@@ -273,7 +281,20 @@ def estimate_malingering_hier(observed_answers, n_questions,
                               beta_mu_b_kwargs, half_norm_mu_delta_kwargs,
                               uniform_lamba_kwargs, uniform_lambda_malinger,
                               beta_phi_kwargs):
-    """
+    """Estimate malingering membership and rate of response in a hierarchical
+    fashion.
+
+    Args:
+        - observed ansers:
+        - n_questions:
+        - beta_mu_b_kwargs:
+        - half_norm_mu_delta_kwargs:
+        - uniform_lamba_kwargs:
+        - uniform_lambda_malinger:
+        - beta_phi_kwargs:
+
+    Returns:
+        - model
     """
     with pm.Model() as model:
 

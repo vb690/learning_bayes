@@ -6,7 +6,8 @@ import arviz as az
 import matplotlib.pyplot as plt
 
 
-def validate_model(model, prpc_kwargs, sampling_kwargs, popc_kwargs):
+def validate_model(model, prpc_kwargs, sampling_kwargs, popc_kwargs,
+                   show_plate=True):
     """Utility function for visualizing model plate, sampling from the model
     and getting prior and posterior predictive check.
 
@@ -16,6 +17,9 @@ def validate_model(model, prpc_kwargs, sampling_kwargs, popc_kwargs):
         - sampling_kwargs: a dict, keyword argument for sampling.
         - popc_kwargs: a dict, keyword argument for sampling posterior
             predictive.
+        - show_plate: a bool determine if a plate is returned, patch bug fix
+            untill a solution for pymc3 impossibility to graph HyperGeometric
+            distr is found.
 
     Returns:
         - plate:  graphviz Digraph, graphical representation of model.
@@ -34,9 +38,11 @@ def validate_model(model, prpc_kwargs, sampling_kwargs, popc_kwargs):
 
         az.plot_trace(trace)
 
-    plate = pm.model_to_graphviz(model)
-
-    return plate, prpc, trace, popc
+    if show_plate:
+        plate = pm.model_to_graphviz(model)
+        return plate, prpc, trace, popc
+    else:
+        return prpc, trace, popc
 
 
 def visualize_samples(observed, prpc, popc, s=80):
