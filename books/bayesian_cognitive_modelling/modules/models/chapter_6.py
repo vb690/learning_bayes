@@ -6,7 +6,7 @@ import theano.tensor as tt
 
 def estimate_latent_ability_membership(obs_scores, number_questions,
                                        beta_1_kwargs, beta_2_kwargs,
-                                       bernoulli_kwargs):
+                                       beta_bernoulli_kwargs):
     """PyMC3 implementation of latent ability and membership model.
 
     Args:
@@ -15,7 +15,7 @@ def estimate_latent_ability_membership(obs_scores, number_questions,
         - number_questions: int, number of total questions.
         - beta_1_kwargs: dict, keyword arguments for a beta distrbution.
         - beta_2_kwargs: dict, keyword arguments for a beta distrbution.
-        - bernoulli_kwargs: dict,  keyword arguments for a bernoulli
+        - beta_bernoulli_kwargs: dict,  keyword arguments for a beta
             distrbution.
 
     Returns:
@@ -35,10 +35,15 @@ def estimate_latent_ability_membership(obs_scores, number_questions,
             **beta_2_kwargs
         )
 
+        latent_group_membership_p = pm.Beta(
+            'latent_group_membership_p',
+            **beta_bernoulli_kwargs
+        )
+
         latent_group_membership = pm.Bernoulli(
             'latent_group_membership',
             shape=(len(obs_scores),),
-            **bernoulli_kwargs
+            p=latent_group_membership_p
         )
 
         latent_group_ability = tt.switch(
