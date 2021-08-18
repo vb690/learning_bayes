@@ -65,7 +65,7 @@ def estimate_latent_ability_membership(obs_scores, number_questions,
 def estimate_latent_ability_hier(obs_scores, number_questions,
                                  a_beta_1_kwargs, b_beta_1_kwargs,
                                  a_beta_2_kwargs, b_beta_2_kwargs,
-                                 bernoulli_kwargs):
+                                 beta_bernoulli_kwargs):
     """PyMC3 implementation of latent ability and membership model with
     hierarchical structure.
 
@@ -79,7 +79,7 @@ def estimate_latent_ability_hier(obs_scores, number_questions,
         - b_beta_1_kwargs: dict, keyword arguments for an uniform
             distrbution. It parametrizes the b parameter of a beta
             distribution
-        - bernoulli_kwargs: dict,  keyword arguments for a bernoulli
+        - beta_bernoulli_kwargs: dict,  keyword arguments for a beta
             distrbution.
 
     Returns:
@@ -126,10 +126,15 @@ def estimate_latent_ability_hier(obs_scores, number_questions,
             shape=(len(obs_scores),)
         )
 
+        latent_group_membership_p = pm.Beta(
+            'latent_group_membership_p',
+            **beta_bernoulli_kwargs
+        )
+
         latent_group_membership = pm.Bernoulli(
             'latent_group_membership',
             shape=(len(obs_scores),),
-            **bernoulli_kwargs
+            p=latent_group_membership_p
         )
 
         latent_group_ability = tt.switch(
@@ -172,29 +177,29 @@ def estimate_difficulty_ability(observed_answers, question_idx, answer_idx,
     """
     with pm.Model() as model:
 
-        question_idx = pm.Data(
+        question_data = pm.Data(
             'question_idx',
             question_idx
         )
-        answer_idx = pm.Data(
+        answer_data = pm.Data(
             'answer_idx',
             answer_idx
         )
 
         difficulty_questions = pm.Beta(
             'difficulty_questions',
-            shape=(len(question_idx.unique())),
+            shape=(len(np.unique(question_idx)),),
             **difficulty_beta_kwargs
         )
         ability_answers = pm.Beta(
             'ability_answers',
-            shape=(len(answer_idx.unique())),
+            shape=(len(np.unique(answer_idx)),),
             **ability_beta_kwargs
         )
 
         p_answer_correct = pm.Deterministic(
             'p_answer_correct',
-            difficulty_questions[question_idx] * ability_answers[answer_idx]
+            difficulty_questions[question_data] * ability_answers[answer_data]
         )
 
         correct_answers = pm.Bernoulli(
