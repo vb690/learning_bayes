@@ -220,3 +220,36 @@ def visualize_time_series(observed, prpc, popc, change_points=None,
     axs[2].set_title('Posterior Predictive Check')
 
     return None
+
+
+def visualize_matrices(observed, prpc, popc, figsize=(15, 5)):
+    """Utility function for visualizing matrices
+    Args:
+        - observed: array, observed data.
+        - prpc: array, sample from the prior predictive.
+        - popc: array, sample from the posterior predictive.
+
+    Returns:
+        - None
+    """
+    fig, axs = plt.subplots(1, 3, figsize=figsize)
+
+    axs[0].matshow(
+        prpc,
+        cmap='viridis',
+    )
+    axs[0].set_title('Prior Predictive Check')
+
+    axs[1].matshow(
+        observed,
+        cmap='binary',
+    )
+    axs[1].set_title('Observed Data')
+
+    axs[2].matshow(
+        popc,
+        cmap='magma',
+    )
+    axs[2].set_title('Posterior Predictive Check')
+
+    return None
