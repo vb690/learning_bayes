@@ -212,7 +212,7 @@ def estimate_difficulty_ability(observed_answers, question_idx, answer_idx,
 
 
 def estimate_conditional_difficulty_ability(observed_answers, question_idx,
-                                            answer_idx, uniform_kwargs,
+                                            answer_idx, beta_kwargs,
                                             bernoulli_question_kwargs,
                                             bernoulli_answer_kwargs
                                             ):
@@ -227,7 +227,7 @@ def estimate_conditional_difficulty_ability(observed_answers, question_idx,
             answers.
         - answer_idx: array of int, anwsers indices associated to the
             answers.
-        - uniform_kwargs: dict, keyword arguments for an unifiorm
+        - beta_kwargs: dict, keyword arguments for a beta
             distribution.
         - bernoulli_question_kwargs: dict, keyword arguments for a bernoulli
             distribution.
@@ -241,29 +241,29 @@ def estimate_conditional_difficulty_ability(observed_answers, question_idx,
     """
     with pm.Model() as model:
 
-        question_idx = pm.Data(
+        question_idx_dat = pm.Data(
             'question_idx',
             question_idx
         )
-        answer_idx = pm.Data(
+        answer_idx_dat = pm.Data(
             'answer_idx',
             answer_idx
         )
 
         latent_group_membership_question = pm.Bernoulli(
             'latent_group_membership_question',
-            shape=(len(question_idx.unique()), ),
+            shape=(len(np.unique(question_idx)), ),
             **bernoulli_question_kwargs
         )
         latent_group_membership_answer = pm.Bernoulli(
             'latent_group_membership_answer',
-            shape=(len(answer_idx.unique()), ),
+            shape=(len(np.unique(answer_idx)), ),
             **bernoulli_answer_kwargs
         )
 
-        same_group_latent_ability = pm.Uniform(
+        same_group_latent_ability = pm.Beta(
             'same_group_latent_ability',
-            **uniform_kwargs
+            **beta_kwargs
         )
         different_group_latent_ability = pm.Uniform(
             'different_group_latent_ability',
@@ -271,16 +271,21 @@ def estimate_conditional_difficulty_ability(observed_answers, question_idx,
             upper=same_group_latent_ability
         )
 
-        latent_abilities = [
-            same_group_latent_ability, different_group_latent_ability
-        ]
-        ability_idx = latent_group_membership_question[question_idx] \
-            == latent_group_membership_answer[answer_idx]
-        ability_idx = ability_idx * 1
+        latent_ability = pm.Deterministic(
+            'latent_ability',
+            tt.switch(
+                tt.eq(
+                    latent_group_membership_question[question_idx_dat],
+                    latent_group_membership_answer[answer_idx_dat]
+                ),
+                same_group_latent_ability,
+                different_group_latent_ability
+            )
+        )
 
         correct_answers = pm.Bernoulli(
             'observed_correct_answers',
-            p=latent_abilities[ability_idx],
+            p=latent_ability,
             observed=observed_answers
         )
 
@@ -297,14 +302,19 @@ def estimate_malingering_hier(observed_answers, n_questions,
     Args:
         - observed ansers:
         - n_questions:
-        - beta_mu_b_kwargs:
-        - half_norm_mu_delta_kwargs:
-        - uniform_lamba_kwargs:
-        - uniform_lambda_malinger:
-        - beta_phi_kwargs:
+        - beta_mu_b_kwargs: a dict, parameters of a beta distribution.
+        - half_norm_mu_delta_kwargs: a  dict, parameters of a half normal
+            distrbution.
+        - uniform_lamba_kwargs: a dict, parameters of an uniform distribution.
+        - uniform_lambda_malinger: a dict, parameters of an uniform
+            distrbution.
+        - beta_phi_kwargs: a dict, parameters of a beta distrbution.
 
     Returns:
-        - model
+        - model: a PyMC3 model estimating the probability to asnwer correctly
+            to questions based on the membership of a malingering group. The
+            malingering group is expected to have an abnormalli low rate of
+            correct responses.
     """
     with pm.Model() as model:
 
