@@ -1,7 +1,5 @@
 import numpy as np
 
-import pymc3 as pm
-
 
 def models_comparison_bf(models, comparisons):
     """

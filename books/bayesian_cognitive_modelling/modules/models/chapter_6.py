@@ -300,8 +300,8 @@ def estimate_malingering_hier(observed_answers, n_questions,
     fashion.
 
     Args:
-        - observed ansers:
-        - n_questions:
+        - observed answers: array, number of correct answers given.
+        - n_questions: int, number of questions asked.
         - beta_mu_b_kwargs: a dict, parameters of a beta distribution.
         - half_norm_mu_delta_kwargs: a  dict, parameters of a half normal
             distrbution.
@@ -359,7 +359,11 @@ def estimate_malingering_hier(observed_answers, n_questions,
             beta=(1 - mu_m) / lam_m
         )
 
-        ps = [p_b, p_m]
+        ps = tt.switch(
+            tt.eq(membership, 1),
+            p_b,
+            p_m
+        )
 
         answers = pm.Binomial(
             'observed_answers',
