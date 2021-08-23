@@ -2,7 +2,16 @@ import numpy as np
 
 
 def models_comparison_bf(models, comparisons):
-    """
+    """Computing the BF given a set of models.
+
+    Args:
+        - models: a dict, key are models name values are pymc3 models after
+            sampling.
+        - comparisons: a list of tuples, each tuple contain the name of the
+            models to be compared.
+
+    Returns:
+        - bfs: a dictionary, bayes factor associated to each comparison
     """
     bfs = {}
     for (m_1, m_0) in comparisons:
@@ -20,11 +29,19 @@ def models_comparison_bf(models, comparisons):
 
 
 def hp_testing_savage_dickey_ratio(models):
-    """
+    """Computing the BF of a nested model, meaning computing the bf for the
+    "null" hypothesis of a given model.
+
+    Args:
+        - models: a dict, keys are models names while values are dictionaries
+            reporting prior and posterior probabilities for the "null".
+
+    Returns:
+        - bfs: a dictionary, bayes factor of the null for each model.
     """
     bfs = {}
-    for model in models.items():
+    for model_name, model_dict in models.items():
 
-        bfs[model] = model['posterior'] / model['prior']
+        bfs[model_name] = model_dict['posterior'] / model_dict['prior']
 
     return bfs
