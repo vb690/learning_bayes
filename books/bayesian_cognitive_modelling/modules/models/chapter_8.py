@@ -1,10 +1,8 @@
-import numpy as np
-
 import pymc3 as pm
 
 
 def estimate_mean_difference_one_sample(obs_measures, delta_cauchy_kwargs,
-                                        sigma_cauchy_kwargs, one_side=False):
+                                        sigma_cauchy_kwargs, side=None):
     """PyMC3 implementation of one sample mean comparison
 
     Args:
@@ -19,11 +17,17 @@ def estimate_mean_difference_one_sample(obs_measures, delta_cauchy_kwargs,
     """
     with pm.Model() as model:
 
-        if one_side:
-            delta = pm.HalfCauchy(
+        if side is not None:
+            side_multiplier = -1 if side == 'left' else 1
+            delta = pm.Deterministic(
                 'effect_size',
-                **delta_cauchy_kwargs
+                side_multiplier * pm.HalfCauchy(
+                    'effect_size_cauchy',
+                    **delta_cauchy_kwargs
+                )
             )
+            if side == 'left':
+                delta = delta * - 1
         else:
             delta = pm.Cauchy(
                 'effect_size',
@@ -46,4 +50,49 @@ def estimate_mean_difference_one_sample(obs_measures, delta_cauchy_kwargs,
             sigma=sigma,
             observed=obs_measures
         )
+    return model
+
+
+def estimate_mean_difference_two_samples(obs_measure, delta_cauchy_kwargs,
+                                         sigma_cauchy_kwargs,
+                                         mu_normal_kwargs):
+    """
+    """
+    group_1 = obs_measures[:, 0]
+    group_2 = obs_measures[:, 1]
+
+    with pm.Model() as model:
+
+        delta = pm.Cauchy(
+            'effect_size',
+            **delta_cauchy_kwargs
+        )
+        sigma = pm.HalfCauchy(
+            'standard_deviation',
+            **sigma_cauchy_kwargs
+        )
+
+        alpha = pm.Deterministic(
+            'mean_difference',
+            delta * sigma
+        )
+
+        mean = pm.Normal(
+            'mu',
+            **mu_normal_kwargs
+        )
+
+        group_1_obs = pm.Normal(
+            'group_1',
+            mu=mean+alpha,
+            sigma=sigma,
+            observed=group_1
+        )
+        group_2_obs = pm.Normal(
+            'group_1',
+            mu=mean-alpha,
+            sigma=sigma,
+            observed=group_2
+        )
+
     return model
