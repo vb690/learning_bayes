@@ -14,9 +14,9 @@ This repository is my attempt to apply MrP for estimating support for next-to-be
 
 # References
 There is not much innovation in this project as it was mostly aimed to help me learning how to apply MrP to survey data.  
-  
+
 **Data**  
 The data comes from the [website](http://www.stat.columbia.edu/~gelman/arm/) associated with Andrew Gelman and Jennifer Hill's book "Data Analysis Using Regression and Multilevel/Hierarchical Models"
 
 **Model**
-The model is an adaptation of the extremely helpful [tutorial](https://austinrochford.com/posts/2017-07-09-mrpymc3.html) by Austin Rochford on using MrP for estimating support for gay marriage in the US.
+The model is an adaptation of the extremely helpful [tutorial](https://austinrochford.com/posts/2017-07-09-mrpymc3.html) by Austin Rochford on using MrP for estimating gay marriage support in the US.
