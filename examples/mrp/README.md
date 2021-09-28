@@ -19,4 +19,4 @@ There is not much innovation in this project as it was mostly aimed to help me l
 The data comes from the [website](http://www.stat.columbia.edu/~gelman/arm/) associated with Andrew Gelman and Jennifer Hill's book "Data Analysis Using Regression and Multilevel/Hierarchical Models"
 
 **Model**
-The model is an adaptation of the extremely helpful [tutorial](https://austinrochford.com/posts/2017-07-09-mrpymc3.html) by Austin Rochford on how to use MrP for estimating support for gay marriage in the US.
+The model is an adaptation of the extremely helpful [tutorial](https://austinrochford.com/posts/2017-07-09-mrpymc3.html) by Austin Rochford on using MrP for estimating support for gay marriage in the US.
