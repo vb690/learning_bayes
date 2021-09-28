@@ -1,5 +1,9 @@
 # Multi-level Regression and Post-stratification
 
+<p align="center">
+  <img width="600" height="400" src="https://github.com/vb690/learning_bayes/blob/main/examples/mrp/results/mrp_plot.png">
+<p align="center">
+
 # Motivation
 This repository is my attempt to apply MrP for estimating support for next-to-be president H. W. Bush using polls data from 1988.
 
