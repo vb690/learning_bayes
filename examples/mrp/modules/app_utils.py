@@ -2,9 +2,7 @@ import numpy as np
 
 import pandas as pd
 
-import matplotlib
 import matplotlib.pyplot as plt
-import seaborn as sns
 
 import streamlit as st
 
@@ -12,24 +10,6 @@ import streamlit as st
 def plot_post_strat(ps_df, ds_df, samples=100):
     """
     """
-    def sns_styleset():
-        sns.set(context='paper', style='ticks', font='DejaVu Sans')
-        matplotlib.rcParams['figure.dpi']        = 300
-        matplotlib.rcParams['axes.linewidth']    = 1
-        matplotlib.rcParams['xtick.major.width'] = 1
-        matplotlib.rcParams['ytick.major.width'] = 1
-        matplotlib.rcParams['xtick.major.size']  = 3
-        matplotlib.rcParams['ytick.major.size']  = 3
-        matplotlib.rcParams['xtick.minor.size']  = 2
-        matplotlib.rcParams['ytick.minor.size']  = 2
-        matplotlib.rcParams['font.size']         = 13
-        matplotlib.rcParams['axes.titlesize']    = 13
-        matplotlib.rcParams['axes.labelsize']    = 13
-        matplotlib.rcParams['legend.fontsize']   = 13
-        matplotlib.rcParams['xtick.labelsize']   = 13
-        matplotlib.rcParams['ytick.labelsize']   = 13
-
-    sns_styleset()
     fig, axs = plt.subplots(
         1,
         3,
@@ -86,10 +66,11 @@ def plot_post_strat(ps_df, ds_df, samples=100):
     )
     for sample in random_samples:
 
+        d = ds_df['support'].values - ps_df[f'support_sample_{sample}'].values
         axs[1].scatter(
-            ds_df['support'].values - ps_df[f'support_sample_{sample}'].values,
+            d,
             ps_df['state'].values,
-            c=ds_df['support'].values - ps_df[f'support_sample_{sample}'].values,
+            c=d,
             cmap='coolwarm_r',
             vmin=-1,
             vmax=1,
@@ -133,6 +114,7 @@ def plot_post_strat(ps_df, ds_df, samples=100):
     plt.tight_layout()
     return fig
 
+
 @st.cache
 def get_data(ps_path, ds_path):
     """
@@ -140,6 +122,7 @@ def get_data(ps_path, ds_path):
     ps_df = pd.read_csv(ps_path)
     ds_df = pd.read_csv(ds_path)
     return ps_df, ds_df
+
 
 @st.cache
 def get_plotting_data(ps_df, ds_df, pp_columns):
@@ -170,7 +153,7 @@ def get_plotting_data(ps_df, ds_df, pp_columns):
 
     for missing_state in list(
         set(state_ps_df['state'].unique()) - set(state_ds_df['state'].unique())
-        ):
+    ):
 
         state_ds_df = state_ds_df.append(
             {

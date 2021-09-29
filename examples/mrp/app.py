@@ -1,5 +1,3 @@
-import pandas as pd
-
 import streamlit as st
 
 from modules.app_utils import get_data, get_plotting_data, plot_post_strat
@@ -15,7 +13,8 @@ ps_df, ds_df = get_data(
     ds_path='results\\agg_polls.csv'
 )
 
-##############################################################################
+###############################################################################
+
 st.sidebar.header('Posterior Samples')
 n_samples = st.sidebar.number_input(
     'Posterior Samples Shown',
@@ -26,23 +25,23 @@ n_samples = st.sidebar.number_input(
 st.sidebar.header('Demographics Filters')
 ethnicity = st.sidebar.multiselect(
     'Etnicity',
-     ps_df['black'].unique(),
-     ps_df['black'].unique()
+    ps_df['black'].unique(),
+    ps_df['black'].unique()
 )
 gender = st.sidebar.multiselect(
     'Gender',
-     ps_df['female'].unique(),
-     ps_df['female'].unique()
+    ps_df['female'].unique(),
+    ps_df['female'].unique()
 )
 edu = st.sidebar.multiselect(
     'Education',
-     ps_df['edu'].unique(),
-     ps_df['edu'].unique()
+    ps_df['edu'].unique(),
+    ps_df['edu'].unique()
 )
 age = st.sidebar.multiselect(
     'Age',
-     ps_df['age'].unique(),
-     ps_df['age'].unique()
+    ps_df['age'].unique(),
+    ps_df['age'].unique()
 )
 
 filtered_ps_df = ps_df.copy()
