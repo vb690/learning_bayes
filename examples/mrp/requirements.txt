@@ -1,0 +1,6 @@
+numpy
+pandas
+pyreadstats
+pymc3
+streamlit
+matplotlib
