@@ -1,6 +1,6 @@
 numpy
 pandas
-pyreadstats
+pyreadstat
 pymc3
 streamlit
 matplotlib
