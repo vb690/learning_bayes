@@ -3,8 +3,8 @@ import numpy as np
 import pymc3 as pm
 
 
-def duration_discrimination(id_ind, n_trials, times, obs_responses,
-                            alpha_sigma_kwargs, alpha_mu_kwargs,
+def duration_discrimination(id_ind, st_ind, n_trials, time_differences,
+                            obs_responses, alpha_sigma_kwargs, alpha_mu_kwargs,
                             beta_sigma_kwargs, beta_mu_kwargs,
                             ):
     """
@@ -15,20 +15,24 @@ def duration_discrimination(id_ind, n_trials, times, obs_responses,
             'id_ind',
             id_ind
         )
+        st_ind_data = pm.Data(
+            'stimuli_ind',
+            st_ind
+        )
         n_trials_data = pm.Data(
             'n_trials',
             n_trials
         )
-        times_data = pm.Data(
+        time_differences_data = pm.Data(
             'times',
-            times
+            time_differences
         )
 
         # this assumes each ind has is exposed to the same times for the same
         # number of trials
-        centered_times = pm.Deterministic(
+        centered_time_differences = pm.Deterministic(
             'centered_times',
-            times_data - pm.math.mean(times_data)
+            time_differences_data - pm.math.mean(time_differences_data)
         )
 
         alpha_mu = pm.Normal(
@@ -64,7 +68,9 @@ def duration_discrimination(id_ind, n_trials, times, obs_responses,
         theta = pm.Deterministic(
             'theta',
             pm.logit(
-                alpha[id_ind_data] + (beta[id_ind_data] * centered_times)
+                alpha[id_ind_data] + (
+                    beta[id_ind_data] * centered_time_differences[st_ind_data]
+                )
             )
         )
 
