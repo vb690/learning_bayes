@@ -102,9 +102,10 @@ def latent_MPT(id_ind, obs_responses, c_sigma_kwargs, r_sigma_kwargs,
             **u_sigma_kwargs
         )
 
-        chol, stds = pm.LKJCholeskyCov(
+        chol, corr, stds = pm.LKJCholeskyCov(
             'cholesky',
             n=3,
+            compute_corr=True,
             **cholesky_kwargs
         )
 
