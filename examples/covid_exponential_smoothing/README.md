@@ -8,6 +8,8 @@
 
 ## Features
 
+The nootebook implements simple exponential smoothing medelling the deths at each year as a weighted average of the past five years.
+
 ## Data
 
 ## Results
