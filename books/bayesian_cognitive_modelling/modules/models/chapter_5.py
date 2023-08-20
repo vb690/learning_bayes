@@ -1,6 +1,6 @@
 import numpy as np
 
-import pymc3 as pm
+import pymc as pm
 
 
 def estimate_pearson_correlation(obs_measurements, lkj_chol_kwargs, mu_kwargs,

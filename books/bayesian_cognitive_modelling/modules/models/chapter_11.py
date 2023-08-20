@@ -2,7 +2,7 @@ import numpy as np
 
 from scipy.stats import norm
 
-import pymc3 as pm
+import pymc as pm
 
 
 def signal_detection(id_ind, obs_hit, obs_false_allarm, noise_trials,

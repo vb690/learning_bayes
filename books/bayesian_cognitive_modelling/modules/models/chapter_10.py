@@ -1,6 +1,6 @@
-import pymc3 as pm
+import pymc as pm
 
-import theano.tensor as tt
+import pytensor.tensor as tt
 
 
 def estimate_retention_probability(observed_retained, n_items, t_steps,

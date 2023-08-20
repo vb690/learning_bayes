@@ -1,6 +1,6 @@
-import pymc3 as pm
-
 import numpy as np
+
+import pymc as pm
 
 
 def SIMPLE_model(conditions_id, items_id, obs_responses):

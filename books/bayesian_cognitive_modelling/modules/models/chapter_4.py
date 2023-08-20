@@ -1,6 +1,6 @@
 import numpy as np
 
-import pymc3 as pm
+import pymc as pm
 
 
 def gaussian_estimation(obs_measurements, mu_kwargs, sigma_kwargs):

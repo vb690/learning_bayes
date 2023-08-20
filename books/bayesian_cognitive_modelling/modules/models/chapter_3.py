@@ -1,6 +1,6 @@
 import numpy as np
 
-import pymc3 as pm
+import pymc as pm
 
 
 def rate_estimation(obs_freq, n, **beta_kwargs):

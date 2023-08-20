@@ -2,7 +2,7 @@ import numpy as np
 
 from scipy.stats import norm
 
-import pymc3 as pm
+import pymc as pm
 
 
 def multinomial_processing_tree(obs_responses, c_beta_kwargs,

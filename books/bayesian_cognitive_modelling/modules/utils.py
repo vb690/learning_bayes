@@ -1,6 +1,6 @@
 from scipy.stats import sem
 
-import pymc3 as pm
+import pymc as pm
 import arviz as az
 
 import matplotlib.pyplot as plt
@@ -40,9 +40,9 @@ def validate_model(model, prpc_kwargs, sampling_kwargs, popc_kwargs,
 
     if show_plate:
         plate = pm.model_to_graphviz(model)
-        return plate, prpc, trace, popc
+        return plate, prpc.prior_predictive, trace, popc.posterior_predictive
     else:
-        return prpc, trace, popc
+        return prpc.prior_predictive, trace, popc.posterior_predictive
 
 
 def visualize_samples(observed, prpc, popc, s=80):

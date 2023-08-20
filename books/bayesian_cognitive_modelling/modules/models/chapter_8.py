@@ -1,4 +1,4 @@
-import pymc3 as pm
+import pymc as pm
 
 
 def estimate_mean_difference_one_sample(obs_measures, delta_cauchy_kwargs,

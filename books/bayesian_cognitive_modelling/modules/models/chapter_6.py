@@ -1,7 +1,7 @@
 import numpy as np
 
-import pymc3 as pm
-import theano.tensor as tt
+import pymc as pm
+import pytensor.tensor as tt
 
 
 def estimate_latent_ability_membership(obs_scores, number_questions,

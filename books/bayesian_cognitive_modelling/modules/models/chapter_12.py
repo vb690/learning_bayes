@@ -1,7 +1,7 @@
 import numpy as np
 
-import pymc3 as pm
-import theano.tensor as tt
+import pymc as pm
+import pytensor.tensor as tt
 
 
 def duration_discrimination(id_ind, st_ind, n_trials, time_differences,
